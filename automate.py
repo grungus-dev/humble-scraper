@@ -10,7 +10,7 @@ def press_key(key, mode='press'):
 	if keyboard.is_pressed('q') == True:
 		return
 
-	time.sleep(0.2)
+	time.sleep(0.15)
 	
 	if mode == 'press':
 		print(f'pressed: {key}')
@@ -54,13 +54,16 @@ def detect_change():
 	previous_hash = None
 
 	while True:
+		if keyboard.is_pressed('q') == True:
+			return
+
 		img = sct.grab(region)
 
 		current_hash = hashlib.md5(img.rgb).hexdigest()
 
 		if previous_hash and current_hash != previous_hash:
 			print('change detected!')
-			time.sleep(1.4)
+			time.sleep(0.5)
 			return
 
 		previous_hash = current_hash
@@ -89,49 +92,24 @@ def	main():
 	print('initialized.')
 	print('make sure you have clicked into your programs in the following order:')
 	print('terminal (this one) < browser < notepad')
-	print('\nbasically you want to be able to have it so that alt+tab goes to BROWSER, and alt+double tab goes to TEXT EDITOR\n')
+	print()
+	print('basically you want to be able to have it so that alt+tab goes to BROWSER, and alt+double tab goes to TEXT EDITOR')
+	print()
+	print('hold "q" if you ever need to abort the program')
 	print('Press "ENTER" to continue.')
 	
 	keyboard.wait('enter')
 	time.sleep(0.7)
 
-	# potentially take this from a config file 
-	# this will be the oldest URL from humble bundle
+	# this will be the oldest URL from humble bundle and iterate forward
 	current_url = 'december-2019'
 
+	# get the current month and year as a string
 	today = datetime.now()
 	this_month = f'{today.date():%B}'.lower()
 	this_year = f'{today.date():%Y}'
-
 	end_url = f"{this_month}-{this_year}"
-
-	# tab into brave and get oldest entry
-	alt_tab()
-	time.sleep(0.2)
-	press_key('ctrl+t')
-	alt_d()
-	write_text(current_url, url=True)
-	enter()
-
-	# wait for page to load
-	detect_change()
-
-	# get all games from that page
-	ctrl_a()
-	time.sleep(0.2)
-	ctrl_c()
-	# double tab over to text editor
-	press_key('alt', 'hold')
-	press_key('tab')
-	press_key('tab')
-	press_key('alt', 'release')
-	# document what section the games were taken from
-	write_text(format_month(current_url))
-	enter()
-	# paste games in text editor
-	ctrl_v()
-	enter()
-	enter()
+	first_loop = True
 
 	while True:
 		# break the loop if user wants to quit
@@ -139,11 +117,11 @@ def	main():
 			print('"q" held: stopping program...')
 			break
 
-		current_url = iterate_url(current_url)
-
-  		# alt tab back into browser
+		# alt tab back into browser
 		alt_tab()
 		time.sleep(0.2)
+		if first_loop == True:
+			press_key('ctrl+t')
 		alt_d()
 		write_text(current_url, url=True)
 		enter()
@@ -155,24 +133,37 @@ def	main():
 		ctrl_a()
 		time.sleep(0.2)
 		ctrl_c()
-		alt_tab()	
+
+		if first_loop == True:
+			print('first_loop = true!')
+
+			press_key('alt', 'hold')
+			press_key('tab')
+			press_key('tab')
+			press_key('alt', 'release')
+		else:
+			print('first_loop = false!')
+
+			alt_tab()
+	
 		# document what section the games were taken from
 		write_text(format_month(current_url))
 		enter()
 		# paste games in text editor
 		ctrl_v()
-
-		if current_url == end_url:
+		
+		if current_url != end_url:
+			current_url = iterate_url(current_url)
+		else:
 			break
 
 		# for notepad formatting
 		enter()
 		enter()
+
+		first_loop = False
 		
 	print('done.')
-	print('press "ENTER" to quit.')
-	keyboard.wait('enter')
-	
 	return
 
 main()

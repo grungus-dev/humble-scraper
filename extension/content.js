@@ -1,67 +1,58 @@
-function removeElementsByClass(className) {
-    let elements = document.getElementsByClassName(className);
-    while(elements.length > 0) {
-        elements[0].parentNode.removeChild(elements[0]);
-    }
+function removeElements(selector) {
+  document.querySelectorAll(selector).forEach(el => el.remove());
 }
 
-function appendElements(targetItems){
-	for (let i = 0; i < targetItems.length; i++){
-			let header = document.createElement('h1');
-			header.textContent = targetItems[i].textContent;
-			document.body.appendChild(header);
-		}
+function appendElements(targetItems) {
+  const fragment = document.createDocumentFragment();
+
+  for (const item of targetItems) {
+    const header = document.createElement('h1');
+    header.textContent = item.textContent.trim();
+    fragment.appendChild(header);
+  }
+
+  document.body.appendChild(fragment);
 }
 
-function getRandomNum(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function removeElements(element) {
-	let elements = document.querySelectorAll(element);
-	return elements.forEach(element => element.remove());   
+function getRandomColor() {
+  // ensures a valid 6-digit hex
+  return `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`;
 }
 
 function main() {
-	const currentUrl = window.location.href;
+  const currentUrl = window.location.href;
 
-	// if user is in the home page, no changes
-	if (currentUrl == 'https://www.humblebundle.com/membership/home'){
-		return;
-	}
+  // Skip modification on homepage
+  if (currentUrl === 'https://www.humblebundle.com/membership/home') { 
+    return;
+  }
 
-	// remove all already claimed games 
-	removeElementsByClass('content-choice claimed')
+  // Remove already claimed games
+  removeElements('.content-choice.claimed');
 
-	// find all remaining games
-	const mainGamesClass = 'content-choice-title';
-	const mainGames = document.getElementsByClassName(mainGamesClass);
+  // Collect remaining game titles
+  const mainGames = document.querySelectorAll('.content-choice-title');
+  const extraGames = document.querySelectorAll('.extra-human-name');
 
-	const extraGamesClass = 'extra-human-name';
-	const extraGames = document.getElementsByClassName(extraGamesClass);
+  // Append selected items first (so we can remove the rest safely)
+  appendElements(mainGames);
+  appendElements(extraGames);
 
-	// append all games to the end of webpage
-	appendElements(mainGames);
-	appendElements(extraGames);
-	
+  // Set random background color for Python detection
+  document.body.style.backgroundColor = getRandomColor();
 
-	// change background to random color
-	// this makes it easier for the python script 
-	// to tell when the page has loaded
-	let style = document.createElement('style');
-	randomColor = getRandomNum(111111, 999999);
-	style.textContent = 'body { background-color: #' + randomColor.toString() + '; }';
-	document.body.appendChild(style);
+  // Now strip the page but keep <body> and appended <h1> elements
+  const elementsToRemove = ['div', 'ul', 'header', 'script'];
 
-	// remove all other existing elements
-	const elements = ['div', 'ul', 'header', 'script'];
+  for (const tag of elementsToRemove) {
+    document.querySelectorAll(tag).forEach(el => {
+      // Only remove if it's not one of our newly added headers
+      if (!el.closest('body > h1')) el.remove();
+    });
+  }
 
-	for (let i = 0; i < elements.length; i++){
-		removeElements(elements[i]);
-	}
-
-	// remove header styles
-	document.head.textContent = '';
+  // Clear any injected styles/scripts from head
+  document.head.textContent = '';
 }
 
 main();

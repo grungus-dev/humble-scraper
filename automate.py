@@ -5,19 +5,23 @@ from pathlib import Path
 import os
 import json
 import time
-from mss import mss, tools
+from mss import mss
 import hashlib
 from datetime import datetime
 
-# life is made a lot easier by using this 
-def press_key(key):
+# accomplishes many things
+# - abort the function early if q is held
+# - wait inbetween keypresses
+# - log a message in the terminal regarding 
+#	what key is pressed
+def press_key(key: str) -> None:
 	if keyboard.is_pressed('q') == True:
 		return
 
 	time.sleep(0.15)
 
 	print(f'pressed: {key}')
-	return keyboard.press_and_release(key)
+	keyboard.press_and_release(key)
 
 # frequently used keystrokes
 def alt_tab():return press_key('alt+tab')
@@ -27,21 +31,25 @@ def ctrl_c(): return press_key('ctrl+c')
 def ctrl_v(): return press_key('ctrl+v')
 def enter():  return press_key('enter')
 
-def write_text(text, url=False):
+def write_text(text: str, url=False) -> None:
 	if keyboard.is_pressed('q') == True:
 		return
 
 	time.sleep(0.2)
+
+	# an easy way to get the url and append the extension
 	if url:
 		text = f'https://www.humblebundle.com/membership/{text}'
-	print(f'wrote: {text}')
-	return Controller().type(text)
 
-def format_month(url):
+	print(f'wrote: {text}')
+	Controller().type(text)
+
+def format_month(url: str) -> str:
 	month, year = url.split('-')
 	return f'{month.capitalize()} {year}:'
 
-def get_browser_location():
+# listens to the mouse until it is clicked
+def get_browser_location() -> int, int:
 	coords = []
 	def on_click(x, y, button, pressed):
 		if pressed:
@@ -61,11 +69,11 @@ def get_browser_location():
 
 # wait for a change on the screen within a certain region
 # used to detect when a webpage updates
-def detect_change(x, y):
+def detect_change(x: int, y: int) -> None:
 	sct = mss()
 	region = {'top': y, 'left': x, 'width': 200, 'height': 200}
 
-	print(f"scanning at ({x}, {y})...")
+	print(f'scanning at ({x}, {y})...')
 	previous_hash = None
 
 	while True:
@@ -85,7 +93,7 @@ def detect_change(x, y):
 		previous_hash = current_hash
 		time.sleep(0.1)
 
-def iterate_url(current_url):
+def iterate_url(current_url: str) -> str:
 	months = [
 		'january', 'february', 'march', 'april',
 		'may', 'june', 'july', 'august',
@@ -104,30 +112,34 @@ def iterate_url(current_url):
   
 	return f'{months[month_index]}-{year}'
 
-if __name__ == "__main__":
-	print('make sure you have a browser openned with the appropriate extension installed AND a text editor open')
+if __name__ == '__main__':
+	print('make sure you have a browser opened with the appropriate extension installed AND a text editor open')
+	print()
 	print('do not press any key or click anything other than what is instructed')
 	print()
 	print('once the keyboard automation begins hold "q" if you need to abort')
 	print('Press "ENTER" to continue.')
 	
 	keyboard.wait('enter')
-	time.sleep(0.7)
+	time.sleep(0.6)
 
 	# this will be the oldest URL from humble bundle and iterate forward
 	root_path = Path(__file__).resolve().parent
 	file_path = os.path.join(root_path, 'info.json')
 
-	with open(file_path) as f:
-		user_info = json.load(f)
+	with open(file_path) as file:
+		user_info = json.load(file)
 
-	current_url = user_info.get('oldest_url')
+	# trim the url to be just the extension 
+	# e.g. current_url = 'december-2019'
+	full_url = user_info.get('oldest_url')
+	current_url = full_url.split('/')[-1]
 
 	# get the current month and year as a string
 	today = datetime.now()
 	this_month = f'{today.date():%B}'.lower()
 	this_year = f'{today.date():%Y}'
-	end_url = f"{this_month}-{this_year}"
+	end_url = f'{this_month}-{this_year}'
 	first_loop = True
 
 	print('click on the middle of your browser.')
@@ -135,7 +147,7 @@ if __name__ == "__main__":
 
 	print('now, click into your text editor and press "enter"')
 	keyboard.wait('enter')
-	time.sleep(0.7)
+	time.sleep(0.6)
 
 	# this is to remove the ENTER that the user just input
 	press_key('backspace')

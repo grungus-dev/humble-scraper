@@ -27,7 +27,7 @@ This extension only affects the Humble Bundle membership page and is active auto
 - You must already be logged into your Humble Bundle account in your browser
 - The extension must be enabled
 
-# putting it all together
+# Putting it all together
 The python script may ask for admin permissions upon trying to run it, allow them.
 
 Hold 'q' once the script starts if you need to force quit.
@@ -36,3 +36,20 @@ Follow the scripts instructions:
 
 ![Script demo](./media/demonstration.gif)
 
+The instructions from the script:
+
+	make sure you have a browser opened with the appropriate extension installed AND a text editor open
+	
+	do not press any key or click anything other than what is instructed
+	
+	once the keyboard automation begins hold "q" if you need to abort
+	
+	Press "ENTER" to continue.
+	
+	...
+	
+	click on the middle of your browser.
+	
+	...
+	
+	now, click into your text editor and press "enter"

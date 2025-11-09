@@ -140,7 +140,6 @@ if __name__ == '__main__':
 	this_month = f'{today.date():%B}'.lower()
 	this_year = f'{today.date():%Y}'
 	end_url = f'{this_month}-{this_year}'
-	first_loop = True
 
 	print('click on the middle of your browser.')
 	x, y = get_browser_location()

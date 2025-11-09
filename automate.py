@@ -49,7 +49,7 @@ def format_month(url: str) -> str:
 	return f'{month.capitalize()} {year}:'
 
 # listens to the mouse until it is clicked
-def get_browser_location() -> int, int:
+def get_browser_location() -> int:
 	coords = []
 	def on_click(x, y, button, pressed):
 		if pressed:
